@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0a0a0f">
+<meta name="theme-color" content="#12121a">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥩</text></svg>">
 <title>NutriTrack</title>
@@ -33,6 +33,7 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { background: var(--bg2); }
 
 body {
   font-family: 'Outfit', sans-serif;
@@ -51,8 +52,13 @@ body {
   display: flex;
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
-  padding: 6px 0 calc(max(var(--safe-bottom), 4px));
+  padding: 6px 0 calc(var(--safe-bottom) + 4px);
   z-index: 100;
+}
+.tab-bar::after {
+  content: ''; position: absolute;
+  bottom: -50px; left: 0; right: 0; height: 50px;
+  background: var(--bg2);
 }
 .tab-bar button {
   flex: 1; border: none; background: none; color: var(--text3);
@@ -188,7 +194,7 @@ body {
 /* ===== INPUT PANEL ===== */
 .input-panel {
   position: fixed; left: 0; right: 0;
-  bottom: calc(40px + max(var(--safe-bottom), 4px));
+  bottom: calc(44px + var(--safe-bottom));
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
   padding: 10px 16px 10px;
