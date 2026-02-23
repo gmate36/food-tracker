@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥩</text></svg>">
+<title>NutriTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #12121a;
+  --bg3: #1a1a26;
+  --bg4: #22222f;
+  --text: #e8e8f0;
+  --text2: #8888a0;
+  --text3: #555568;
+  --accent: #6ee7b7;
+  --accent2: #34d399;
+  --red: #f87171;
+  --orange: #fb923c;
+  --yellow: #fbbf24;
+  --green: #4ade80;
+  --gold: #f59e0b;
+  --blue: #60a5fa;
+  --radius: 14px;
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== TABS ===== */
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex;
+  background: var(--bg);
+  padding-bottom: var(--safe-bottom);
+  z-index: 100;
+}
+.tab-bar button {
+  flex: 1; border: none; background: none; color: var(--text3);
+  font-family: 'Outfit', sans-serif; font-size: 10px; font-weight: 500;
+  padding: 8px 0 6px; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  transition: color .2s;
+}
+.tab-bar button.active { color: var(--accent); }
+.tab-bar button svg { width: 20px; height: 20px; }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ===== HEADER ===== */
+.header {
+  padding: 52px 20px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.header h1 {
+  font-size: 22px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.header-actions { display: flex; gap: 8px; }
+.header-btn {
+  background: var(--bg3); border: none; color: var(--text2);
+  width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+.header-btn:active { background: var(--bg4); }
+.header-btn svg { width: 18px; height: 18px; }
+
+/* ===== BARS ===== */
+.bars-section { padding: 0 20px 12px; }
+.bar-container { margin-bottom: 14px; }
+.bar-label {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+}
+.bar-label-title { font-size: 13px; font-weight: 500; color: var(--text2); }
+.bar-label-value { font-family: 'JetBrains Mono', monospace; font-size: 15px; font-weight: 600; }
+.bar-track {
+  height: 28px; background: var(--bg3); border-radius: 14px;
+  overflow: hidden; position: relative;
+}
+.bar-fill {
+  height: 100%; border-radius: 14px;
+  transition: width .4s ease, background .4s;
+  position: relative;
+}
+.bar-fill::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,.15) 0%, transparent 60%);
+  border-radius: 14px;
+}
+.bar-markers {
+  position: absolute; top: 0; bottom: 0; left: 0; right: 0;
+  pointer-events: none;
+}
+.bar-marker {
+  position: absolute; top: 2px; bottom: 2px; width: 2px;
+  background: rgba(255,255,255,.25); border-radius: 1px;
+}
+
+/* protein colors */
+.bar-protein-red { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.bar-protein-orange { background: linear-gradient(90deg, #ea580c, #f97316); }
+.bar-protein-green { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.bar-protein-gold { background: linear-gradient(90deg, #d97706, #f59e0b); }
+
+/* calorie colors */
+.bar-cal-low { background: linear-gradient(90deg, #dc2626, #ef4444); }
+.bar-cal-ok { background: linear-gradient(90deg, #16a34a, #22c55e); }
+.bar-cal-high { background: linear-gradient(90deg, #ea580c, #f97316); }
+.bar-cal-over { background: linear-gradient(90deg, #dc2626, #ef4444); }
+
+/* ===== NEXT SCHEDULE HINT ===== */
+.next-hint {
+  margin: 0 20px 12px; padding: 10px 14px;
+  background: var(--bg3); border-radius: var(--radius);
+  font-size: 13px; color: var(--text2);
+  display: flex; align-items: center; gap: 8px;
+}
+.next-hint-time {
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--accent); font-weight: 600; font-size: 12px;
+  white-space: nowrap;
+}
+.next-hint-name { flex: 1; }
+.next-hint-stats { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); white-space: nowrap; }
+.next-hint.hidden { display: none; }
+
+/* ===== FOOD LOG ===== */
+.food-log { padding: 0 20px; padding-bottom: 200px; }
+.food-log-title { font-size: 13px; color: var(--text3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
+.food-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--bg3);
+}
+.food-item:last-child { border-bottom: none; }
+.food-item-time { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); width: 42px; flex-shrink: 0; }
+.food-item-name { flex: 1; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.food-item-stats {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  display: flex; gap: 10px; flex-shrink: 0;
+}
+.food-item-protein { color: var(--accent2); }
+.food-item-cal { color: var(--text2); }
+.food-item-sched { color: var(--gold); font-size: 10px; margin-left: -4px; }
+.food-item-delete {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  padding: 4px; border-radius: 6px; flex-shrink: 0;
+  opacity: 0; transition: opacity .2s;
+}
+.food-item:hover .food-item-delete,
+.food-item:active .food-item-delete { opacity: 1; }
+.food-item-delete svg { width: 14px; height: 14px; }
+
+.empty-state {
+  text-align: center; padding: 40px 20px;
+  color: var(--text3); font-size: 14px;
+}
+.empty-state-icon { font-size: 32px; margin-bottom: 8px; }
+
+/* ===== INPUT PANEL ===== */
+.input-panel {
+  position: fixed; bottom: 60px; left: 8px; right: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--bg3);
+  border-radius: 16px;
+  padding: 10px 12px;
+  z-index: 90;
+  box-shadow: 0 -4px 24px rgba(0,0,0,.4);
+}
+.input-row-select {
+  display: flex; gap: 6px; margin-bottom: 8px;
+}
+.product-select {
+  flex: 1; height: 36px;
+  background: var(--bg3); border: 1px solid var(--bg4);
+  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 16px;
+  border-radius: 10px; padding: 0 12px; cursor: pointer;
+  appearance: none; -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%238888a0'%3E%3Cpath d='M5 7L1 3h8z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+.product-select option { background: var(--bg2); color: var(--text); }
+.manage-products-btn {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--bg3); border: 1px solid var(--bg4);
+  color: var(--text2); border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+  -webkit-text-size-adjust: 100%;
+}
+.manage-products-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+.manage-products-btn:active { background: var(--bg4); }
+
+.input-row-fields { display: flex; gap: 6px; }
+.input-field {
+  flex: 1; position: relative;
+}
+.input-field input {
+  width: 100%; height: 40px;
+  background: var(--bg3); border: 1px solid var(--bg4);
+  color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 15px;
+  border-radius: 10px; padding: 0 10px; padding-right: 30px;
+  outline: none; transition: border-color .2s;
+}
+.input-field input:focus { border-color: var(--accent); }
+.input-field input::placeholder { color: var(--text3); }
+.input-field-unit {
+  position: absolute; right: 9px; top: 50%; transform: translateY(-50%);
+  font-size: 10px; color: var(--text3); font-weight: 500; pointer-events: none;
+}
+.add-btn {
+  width: 40px; height: 40px; flex-shrink: 0;
+  background: var(--accent); border: none;
+  color: var(--bg); border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .2s;
+}
+.add-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+.add-btn:active { opacity: .7; }
+
+/* ===== SCHEDULE TAB ===== */
+.schedule-wrap { padding: 0 20px 120px; }
+.schedule-summary {
+  background: var(--bg3); border-radius: var(--radius);
+  padding: 14px; margin-bottom: 16px;
+}
+.schedule-summary-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; margin-bottom: 4px;
+}
+.schedule-summary-row:last-child { margin-bottom: 0; }
+.schedule-summary-label { color: var(--text2); }
+.schedule-summary-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.schedule-summary-value.green { color: var(--green); }
+.schedule-summary-value.gold { color: var(--gold); }
+
+.schedule-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 0; border-bottom: 1px solid var(--bg3);
+}
+.schedule-item:last-child { border-bottom: none; }
+.schedule-check {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--bg3); border: 2px solid var(--bg4);
+  border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; color: transparent;
+}
+.schedule-check.done {
+  background: var(--accent); border-color: var(--accent);
+  color: var(--bg);
+}
+.schedule-check svg { width: 16px; height: 16px; }
+.schedule-item-time {
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  color: var(--text3); width: 45px; flex-shrink: 0;
+}
+.schedule-item-info { flex: 1; }
+.schedule-item-name { font-size: 14px; font-weight: 500; }
+.schedule-item-stats { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 2px; }
+.schedule-item-delete {
+  background: none; border: none; color: var(--text3); cursor: pointer;
+  padding: 4px; border-radius: 6px; opacity: 0; transition: opacity .2s;
+}
+.schedule-item:hover .schedule-item-delete,
+.schedule-item:active .schedule-item-delete { opacity: 1; }
+.schedule-item-delete svg { width: 14px; height: 14px; }
+
+.schedule-add-btn {
+  width: 100%; height: 44px; margin-top: 12px;
+  background: var(--bg3); border: 2px dashed var(--bg4);
+  color: var(--text3); font-family: 'Outfit', sans-serif; font-size: 14px;
+  border-radius: var(--radius); cursor: pointer;
+  transition: all .2s;
+}
+.schedule-add-btn:active { background: var(--bg4); border-color: var(--text3); }
+
+/* ===== WEEK TAB ===== */
+.week-wrap { padding: 0 20px 120px; }
+.week-budget {
+  background: var(--bg3); border-radius: var(--radius);
+  padding: 16px; margin-bottom: 16px; text-align: center;
+}
+.week-budget-left {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 28px; font-weight: 700;
+}
+.week-budget-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.week-budget-perday {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px; color: var(--accent); margin-top: 8px;
+}
+
+.week-days { display: flex; gap: 6px; margin-bottom: 16px; }
+.week-day {
+  flex: 1; text-align: center; padding: 8px 0;
+  background: var(--bg3); border-radius: 10px;
+}
+.week-day-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 600; }
+.week-day-bar {
+  width: 18px; height: 40px; margin: 0 auto;
+  background: var(--bg4); border-radius: 6px; overflow: hidden;
+  position: relative; display: flex; align-items: flex-end;
+}
+.week-day-fill {
+  width: 100%; border-radius: 6px;
+  transition: height .3s;
+}
+.week-day-cal {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px; color: var(--text3); margin-top: 4px;
+}
+.week-day.today { background: var(--bg4); }
+.week-day.today .week-day-label { color: var(--accent); }
+
+.week-stats { background: var(--bg3); border-radius: var(--radius); padding: 14px; }
+.week-stat-row {
+  display: flex; justify-content: space-between;
+  font-size: 13px; margin-bottom: 6px;
+}
+.week-stat-row:last-child { margin-bottom: 0; }
+.week-stat-label { color: var(--text2); }
+.week-stat-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.6); z-index: 200;
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+}
+.modal-overlay.active { display: flex; align-items: flex-end; justify-content: center; }
+.modal {
+  background: var(--bg2); border-radius: 20px 20px 0 0;
+  width: 100%; max-width: 500px; max-height: 80vh;
+  padding: 20px; padding-bottom: calc(20px + var(--safe-bottom));
+  overflow-y: auto;
+}
+.modal-title {
+  font-size: 18px; font-weight: 600; margin-bottom: 16px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.modal-close {
+  background: var(--bg3); border: none; color: var(--text2);
+  width: 32px; height: 32px; border-radius: 10px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+}
+.modal-field { margin-bottom: 12px; }
+.modal-field label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 4px; font-weight: 500; }
+.modal-field input, .modal-field select {
+  width: 100%; height: 44px;
+  background: var(--bg3); border: 1px solid var(--bg4);
+  color: var(--text); font-family: 'Outfit', sans-serif; font-size: 14px;
+  border-radius: 10px; padding: 0 12px; outline: none;
+}
+.modal-field input:focus { border-color: var(--accent); }
+.modal-submit {
+  width: 100%; height: 48px; margin-top: 8px;
+  background: var(--accent); border: none;
+  color: var(--bg); font-family: 'Outfit', sans-serif;
+  font-size: 15px; font-weight: 600;
+  border-radius: 12px; cursor: pointer;
+}
+.modal-submit:active { opacity: .7; }
+
+/* products list in modal */
+.products-list { margin-bottom: 12px; }
+.product-list-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--bg3);
+}
+.product-list-item-name { flex: 1; font-size: 14px; }
+.product-list-item-stats { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3); }
+.product-list-item-del {
+  background: none; border: none; color: var(--red); cursor: pointer;
+  padding: 4px; border-radius: 6px; opacity: .6;
+}
+.product-list-item-del:active { opacity: 1; }
+
+/* ===== DATA ACTIONS ===== */
+.data-actions {
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.data-btn {
+  flex: 1; height: 40px;
+  background: var(--bg3); border: 1px solid var(--bg4);
+  color: var(--text2); font-family: 'Outfit', sans-serif; font-size: 13px;
+  border-radius: 10px; cursor: pointer;
+}
+.data-btn:active { background: var(--bg4); }
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.modal-overlay.active .modal { animation: slideUp .25s ease-out; }
+</style>
+</head>
+<body>
+
+<!-- ===== TODAY TAB ===== -->
+<div id="tab-today" class="tab-content active">
+  <div class="header">
+    <h1>NutriTrack</h1>
+    <div class="header-actions">
+      <button class="header-btn" onclick="openDataModal()" title="Данные">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="bars-section">
+    <div class="bar-container">
+      <div class="bar-label">
+        <span class="bar-label-title">Белок</span>
+        <span class="bar-label-value" id="protein-value">0 / 130-165 г</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="protein-bar" style="width: 0%"></div>
+        <div class="bar-markers">
+          <div class="bar-marker" id="protein-marker-min" title="Минимум 130г"></div>
+          <div class="bar-marker" id="protein-marker-max" title="Идеал 165г"></div>
+        </div>
+      </div>
+    </div>
+    <div class="bar-container">
+      <div class="bar-label">
+        <span class="bar-label-title">Калории</span>
+        <span class="bar-label-value" id="cal-value">0 / 2500 ккал</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill" id="cal-bar" style="width: 0%"></div>
+        <div class="bar-markers">
+          <div class="bar-marker" id="cal-marker-min" title="Минимум"></div>
+          <div class="bar-marker" id="cal-marker-max" title="Максимум"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="next-hint hidden" id="next-hint">
+    <span class="next-hint-time" id="next-hint-time"></span>
+    <span class="next-hint-name" id="next-hint-name"></span>
+    <span class="next-hint-stats" id="next-hint-stats"></span>
+  </div>
+
+  <div class="food-log" id="food-log">
+    <div class="food-log-title">Сегодня</div>
+    <div id="food-list"></div>
+  </div>
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel" id="input-panel">
+    <div class="input-row-select">
+      <select class="product-select" id="product-select" onchange="onProductSelect()">
+        <option value="">— быстрый ввод —</option>
+      </select>
+      <button class="manage-products-btn" onclick="openProductsModal()" title="Мои продукты"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" width="18" height="18"><path d="M12.22 2h-.44a2 2 0 00-2 2v.18a2 2 0 01-1 1.73l-.43.25a2 2 0 01-2 0l-.15-.08a2 2 0 00-2.73.73l-.22.38a2 2 0 00.73 2.73l.15.1a2 2 0 011 1.72v.51a2 2 0 01-1 1.74l-.15.09a2 2 0 00-.73 2.73l.22.38a2 2 0 002.73.73l.15-.08a2 2 0 012 0l.43.25a2 2 0 011 1.73V20a2 2 0 002 2h.44a2 2 0 002-2v-.18a2 2 0 011-1.73l.43-.25a2 2 0 012 0l.15.08a2 2 0 002.73-.73l.22-.39a2 2 0 00-.73-2.73l-.15-.08a2 2 0 01-1-1.74v-.5a2 2 0 011-1.74l.15-.09a2 2 0 00.73-2.73l-.22-.38a2 2 0 00-2.73-.73l-.15.08a2 2 0 01-2 0l-.43-.25a2 2 0 01-1-1.73V4a2 2 0 00-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
+    </div>
+    <div class="input-row-fields">
+      <div class="input-field">
+        <input type="number" id="input-protein" placeholder="0" inputmode="numeric">
+        <span class="input-field-unit">г</span>
+      </div>
+      <div class="input-field">
+        <input type="number" id="input-cal" placeholder="0" inputmode="numeric">
+        <span class="input-field-unit">ккал</span>
+      </div>
+      <button class="add-btn" onclick="addFood()"><svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" width="20" height="20"><path d="M12 5v14M5 12h14"/></svg></button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SCHEDULE TAB ===== -->
+<div id="tab-schedule" class="tab-content">
+  <div class="header">
+    <h1>Расписание</h1>
+  </div>
+  <div class="schedule-wrap">
+    <div class="schedule-summary" id="schedule-summary"></div>
+    <div id="schedule-list"></div>
+    <button class="schedule-add-btn" onclick="openScheduleModal()">+ Добавить в расписание</button>
+  </div>
+</div>
+
+<!-- ===== WEEK TAB ===== -->
+<div id="tab-week" class="tab-content">
+  <div class="header">
+    <h1>Неделя</h1>
+  </div>
+  <div class="week-wrap">
+    <div class="week-budget">
+      <div class="week-budget-left" id="week-budget-left">17500</div>
+      <div class="week-budget-label">ккал осталось на неделю</div>
+      <div class="week-budget-perday" id="week-budget-perday">≈ 2500 / день</div>
+    </div>
+    <div class="week-days" id="week-days"></div>
+    <div class="week-stats" id="week-stats"></div>
+  </div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <button class="active" onclick="switchTab('today', this)">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+    Сегодня
+  </button>
+  <button onclick="switchTab('schedule', this)">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+    Расписание
+  </button>
+  <button onclick="switchTab('week', this)">
+    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 8v8M12 11v5M8 14v2M4 4h16v16H4z"/></svg>
+    Неделя
+  </button>
+</div>
+
+<!-- ===== MODALS ===== -->
+<div class="modal-overlay" id="modal-products">
+  <div class="modal">
+    <div class="modal-title">Мои продукты <button class="modal-close" onclick="closeModal('modal-products')">✕</button></div>
+    <div class="products-list" id="products-list-container"></div>
+    <div class="modal-field"><label>Название</label><input id="new-product-name" placeholder="Творог 200г"></div>
+    <div style="display:flex;gap:8px">
+      <div class="modal-field" style="flex:1"><label>Белок (г)</label><input type="number" id="new-product-protein" inputmode="numeric"></div>
+      <div class="modal-field" style="flex:1"><label>Калории</label><input type="number" id="new-product-cal" inputmode="numeric"></div>
+    </div>
+    <button class="modal-submit" onclick="addProduct()">Добавить продукт</button>
+    <div class="data-actions">
+      <button class="data-btn" onclick="exportData()">📤 Экспорт</button>
+      <button class="data-btn" onclick="importData()">📥 Импорт</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-schedule">
+  <div class="modal">
+    <div class="modal-title">Новый пункт <button class="modal-close" onclick="closeModal('modal-schedule')">✕</button></div>
+    <div class="modal-field"><label>Название</label><input id="sched-name" placeholder="Протеин"></div>
+    <div class="modal-field"><label>Время</label><input type="time" id="sched-time" value="14:00"></div>
+    <div style="display:flex;gap:8px">
+      <div class="modal-field" style="flex:1"><label>Белок (г)</label><input type="number" id="sched-protein" inputmode="numeric"></div>
+      <div class="modal-field" style="flex:1"><label>Калории</label><input type="number" id="sched-cal" inputmode="numeric"></div>
+    </div>
+    <button class="modal-submit" onclick="addScheduleItem()">Добавить</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-data">
+  <div class="modal">
+    <div class="modal-title">Настройки <button class="modal-close" onclick="closeModal('modal-data')">✕</button></div>
+    <div class="modal-field"><label>Целевые ккал / день</label><input type="number" id="setting-cal-target" inputmode="numeric"></div>
+    <div style="display:flex;gap:8px">
+      <div class="modal-field" style="flex:1"><label>Белок мин (г)</label><input type="number" id="setting-protein-min" inputmode="numeric"></div>
+      <div class="modal-field" style="flex:1"><label>Белок макс (г)</label><input type="number" id="setting-protein-max" inputmode="numeric"></div>
+    </div>
+    <button class="modal-submit" onclick="saveSettings()">Сохранить</button>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+const DEFAULTS = { calTarget: 2500, proteinMin: 130, proteinMax: 165 };
+let state = loadState();
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem('nutritrack') || '{}');
+    return {
+      settings: s.settings || { ...DEFAULTS },
+      products: s.products || [],
+      schedule: s.schedule || [],
+      log: s.log || {},        // { "2026-02-22": [ {time, name, protein, cal, fromSchedule} ] }
+      scheduleDone: s.scheduleDone || {} // { "2026-02-22": ["id1","id2"] }
+    };
+  } catch { return { settings: {...DEFAULTS}, products: [], schedule: [], log: {}, scheduleDone: {} }; }
+}
+function saveState() { localStorage.setItem('nutritrack', JSON.stringify(state)); }
+function today() { return new Date().toISOString().slice(0, 10); }
+function todayLog() { return state.log[today()] || []; }
+function nowTime() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+
+// ===== WEEK HELPERS =====
+function getWeekStart(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff)).toISOString().slice(0, 10);
+}
+function getWeekDays(startDate) {
+  const days = [];
+  const d = new Date(startDate);
+  for (let i = 0; i < 7; i++) {
+    days.push(new Date(d).toISOString().slice(0, 10));
+    d.setDate(d.getDate() + 1);
+  }
+  return days;
+}
+function dayTotals(dateStr) {
+  const entries = state.log[dateStr] || [];
+  let protein = 0, cal = 0;
+  entries.forEach(e => { protein += (e.protein || 0); cal += (e.cal || 0); });
+  return { protein, cal };
+}
+
+// ===== TABS =====
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+  // Show input panel only on today tab
+  document.getElementById('input-panel').style.display = name === 'today' ? '' : 'none';
+  if (name === 'week') renderWeek();
+  if (name === 'schedule') renderSchedule();
+}
+
+// ===== RENDER TODAY =====
+function renderToday() {
+  const entries = todayLog();
+  let totalProtein = 0, totalCal = 0;
+  entries.forEach(e => { totalProtein += (e.protein || 0); totalCal += (e.cal || 0); });
+
+  const { calTarget, proteinMin, proteinMax } = state.settings;
+
+  // Protein bar
+  const proteinPct = Math.min(100, (totalProtein / proteinMax) * 100);
+  const proteinBar = document.getElementById('protein-bar');
+  proteinBar.style.width = proteinPct + '%';
+  if (totalProtein < proteinMin * 0.7) proteinBar.className = 'bar-fill bar-protein-red';
+  else if (totalProtein < proteinMin) proteinBar.className = 'bar-fill bar-protein-orange';
+  else if (totalProtein <= proteinMax) proteinBar.className = 'bar-fill bar-protein-green';
+  else proteinBar.className = 'bar-fill bar-protein-gold';
+  document.getElementById('protein-value').textContent = `${totalProtein} / ${proteinMin}-${proteinMax} г`;
+
+  // Protein markers
+  document.getElementById('protein-marker-min').style.left = (proteinMin / proteinMax * 100) + '%';
+  document.getElementById('protein-marker-max').style.left = '100%';
+
+  // Cal bar
+  const calMin = calTarget - 300; // 2200
+  const calMax = calTarget + 200; // 2700
+  const calBarMax = calTarget + 400; // for visual scaling
+  const calPct = Math.min(100, (totalCal / calBarMax) * 100);
+  const calBar = document.getElementById('cal-bar');
+  calBar.style.width = calPct + '%';
+  if (totalCal < calMin) calBar.className = 'bar-fill bar-cal-low';
+  else if (totalCal <= calMax) calBar.className = 'bar-fill bar-cal-ok';
+  else if (totalCal <= calTarget + 400) calBar.className = 'bar-fill bar-cal-high';
+  else calBar.className = 'bar-fill bar-cal-over';
+  document.getElementById('cal-value').textContent = `${totalCal} / ${calTarget} ккал`;
+
+  // Cal markers
+  document.getElementById('cal-marker-min').style.left = (calMin / calBarMax * 100) + '%';
+  document.getElementById('cal-marker-max').style.left = (calMax / calBarMax * 100) + '%';
+
+  // Food list
+  const listEl = document.getElementById('food-list');
+  if (entries.length === 0) {
+    listEl.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🍽</div>Ещё ничего не съедено</div>';
+  } else {
+    listEl.innerHTML = entries.map((e, i) => `
+      <div class="food-item">
+        <span class="food-item-time">${e.time || ''}</span>
+        ${e.fromSchedule ? '<span class="food-item-sched">📋</span>' : ''}
+        <span class="food-item-name">${e.name || 'Без названия'}</span>
+        <span class="food-item-stats">
+          <span class="food-item-protein">${e.protein}г</span>
+          <span class="food-item-cal">${e.cal}</span>
+        </span>
+        <button class="food-item-delete" onclick="deleteFood(${i})">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  // Next schedule hint
+  renderNextHint();
+}
+
+function renderNextHint() {
+  const hint = document.getElementById('next-hint');
+  const doneIds = state.scheduleDone[today()] || [];
+  const now = nowTime();
+  const next = state.schedule
+    .filter(s => !doneIds.includes(s.id))
+    .sort((a, b) => a.time.localeCompare(b.time))
+    .find(s => s.time >= now) || state.schedule.filter(s => !doneIds.includes(s.id)).sort((a, b) => a.time.localeCompare(b.time))[0];
+
+  if (!next) { hint.classList.add('hidden'); return; }
+  hint.classList.remove('hidden');
+  document.getElementById('next-hint-time').textContent = next.time;
+  document.getElementById('next-hint-name').textContent = next.name;
+  document.getElementById('next-hint-stats').textContent = `${next.protein}г / ${next.cal}`;
+}
+
+// ===== ADD FOOD =====
+function addFood() {
+  const protein = parseInt(document.getElementById('input-protein').value) || 0;
+  const cal = parseInt(document.getElementById('input-cal').value) || 0;
+  if (protein === 0 && cal === 0) return;
+
+  const select = document.getElementById('product-select');
+  const name = select.value ? select.options[select.selectedIndex].text : (protein > 0 ? `${protein}г белка` : `${cal} ккал`);
+
+  const d = today();
+  if (!state.log[d]) state.log[d] = [];
+  state.log[d].push({ time: nowTime(), name, protein, cal });
+  saveState();
+  renderToday();
+
+  document.getElementById('input-protein').value = '';
+  document.getElementById('input-cal').value = '';
+  select.value = '';
+}
+
+function deleteFood(index) {
+  const d = today();
+  if (state.log[d]) {
+    state.log[d].splice(index, 1);
+    saveState();
+    renderToday();
+  }
+}
+
+// ===== PRODUCTS =====
+function onProductSelect() {
+  const select = document.getElementById('product-select');
+  const p = state.products.find(p => p.id === select.value);
+  if (p) {
+    document.getElementById('input-protein').value = p.protein;
+    document.getElementById('input-cal').value = p.cal;
+  }
+}
+
+function renderProductSelect() {
+  const select = document.getElementById('product-select');
+  const val = select.value;
+  select.innerHTML = '<option value="">— быстрый ввод —</option>' +
+    state.products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  select.value = val;
+}
+
+function openProductsModal() {
+  renderProductsList();
+  document.getElementById('modal-products').classList.add('active');
+}
+function renderProductsList() {
+  const c = document.getElementById('products-list-container');
+  if (state.products.length === 0) {
+    c.innerHTML = '<div style="color:var(--text3);font-size:13px;padding:8px 0">Пока пусто. Добавь свои продукты 👇</div>';
+  } else {
+    c.innerHTML = state.products.map(p => `
+      <div class="product-list-item">
+        <span class="product-list-item-name">${p.name}</span>
+        <span class="product-list-item-stats">${p.protein}г / ${p.cal} ккал</span>
+        <button class="product-list-item-del" onclick="deleteProduct('${p.id}')">✕</button>
+      </div>
+    `).join('');
+  }
+}
+function addProduct() {
+  const name = document.getElementById('new-product-name').value.trim();
+  const protein = parseInt(document.getElementById('new-product-protein').value) || 0;
+  const cal = parseInt(document.getElementById('new-product-cal').value) || 0;
+  if (!name) return;
+  state.products.push({ id: Date.now().toString(), name, protein, cal });
+  saveState();
+  renderProductsList();
+  renderProductSelect();
+  document.getElementById('new-product-name').value = '';
+  document.getElementById('new-product-protein').value = '';
+  document.getElementById('new-product-cal').value = '';
+}
+function deleteProduct(id) {
+  state.products = state.products.filter(p => p.id !== id);
+  saveState();
+  renderProductsList();
+  renderProductSelect();
+}
+
+// ===== SCHEDULE =====
+function renderSchedule() {
+  const list = document.getElementById('schedule-list');
+  const sorted = [...state.schedule].sort((a, b) => a.time.localeCompare(b.time));
+  const doneIds = state.scheduleDone[today()] || [];
+
+  let totalProtein = 0, totalCal = 0;
+  sorted.forEach(s => { totalProtein += s.protein; totalCal += s.cal; });
+
+  const { calTarget, proteinMin } = state.settings;
+  const freeProtein = Math.max(0, proteinMin - totalProtein);
+  const freeCal = Math.max(0, calTarget - totalCal);
+
+  document.getElementById('schedule-summary').innerHTML = `
+    <div class="schedule-summary-row">
+      <span class="schedule-summary-label">План закрывает</span>
+      <span class="schedule-summary-value gold">${totalProtein}г / ${totalCal} ккал</span>
+    </div>
+    <div class="schedule-summary-row">
+      <span class="schedule-summary-label">Свободно</span>
+      <span class="schedule-summary-value green">+${freeCal} ккал / нужно ${freeProtein}г белка</span>
+    </div>
+  `;
+
+  if (sorted.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>Добавь ежедневные приёмы пищи</div>';
+  } else {
+    list.innerHTML = sorted.map(s => {
+      const done = doneIds.includes(s.id);
+      return `
+        <div class="schedule-item">
+          <button class="schedule-check ${done ? 'done' : ''}" onclick="toggleScheduleDone('${s.id}')">
+            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+          </button>
+          <span class="schedule-item-time">${s.time}</span>
+          <div class="schedule-item-info">
+            <div class="schedule-item-name">${s.name}</div>
+            <div class="schedule-item-stats">${s.protein}г белка · ${s.cal} ккал</div>
+          </div>
+          <button class="schedule-item-delete" onclick="deleteScheduleItem('${s.id}')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function toggleScheduleDone(id) {
+  const d = today();
+  if (!state.scheduleDone[d]) state.scheduleDone[d] = [];
+  const idx = state.scheduleDone[d].indexOf(id);
+  const item = state.schedule.find(s => s.id === id);
+  if (!item) return;
+
+  if (idx === -1) {
+    // Mark done → add to food log
+    state.scheduleDone[d].push(id);
+    if (!state.log[d]) state.log[d] = [];
+    state.log[d].push({ time: item.time, name: item.name, protein: item.protein, cal: item.cal, fromSchedule: id });
+  } else {
+    // Uncheck → remove from log
+    state.scheduleDone[d].splice(idx, 1);
+    if (state.log[d]) {
+      state.log[d] = state.log[d].filter(e => e.fromSchedule !== id);
+    }
+  }
+  saveState();
+  renderSchedule();
+  renderToday();
+}
+
+function openScheduleModal() { document.getElementById('modal-schedule').classList.add('active'); }
+function addScheduleItem() {
+  const name = document.getElementById('sched-name').value.trim();
+  const time = document.getElementById('sched-time').value;
+  const protein = parseInt(document.getElementById('sched-protein').value) || 0;
+  const cal = parseInt(document.getElementById('sched-cal').value) || 0;
+  if (!name) return;
+  state.schedule.push({ id: Date.now().toString(), name, time, protein, cal });
+  saveState();
+  closeModal('modal-schedule');
+  renderSchedule();
+  renderNextHint();
+  document.getElementById('sched-name').value = '';
+  document.getElementById('sched-protein').value = '';
+  document.getElementById('sched-cal').value = '';
+}
+function deleteScheduleItem(id) {
+  state.schedule = state.schedule.filter(s => s.id !== id);
+  saveState();
+  renderSchedule();
+  renderNextHint();
+}
+
+// ===== WEEK =====
+function renderWeek() {
+  const weekStart = getWeekStart(today());
+  const days = getWeekDays(weekStart);
+  const dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const { calTarget } = state.settings;
+  const weekBudget = calTarget * 7;
+
+  let weekCal = 0, weekProtein = 0, daysWithData = 0;
+
+  const daysEl = document.getElementById('week-days');
+  daysEl.innerHTML = days.map((d, i) => {
+    const totals = dayTotals(d);
+    weekCal += totals.cal;
+    weekProtein += totals.protein;
+    if (totals.cal > 0) daysWithData++;
+
+    const isToday = d === today();
+    const pct = Math.min(100, (totals.cal / (calTarget + 400)) * 100);
+    const calMin = calTarget - 300;
+    const calMax = calTarget + 200;
+    let color = 'var(--text3)';
+    if (totals.cal > 0) {
+      if (totals.cal < calMin) color = 'var(--red)';
+      else if (totals.cal <= calMax) color = 'var(--green)';
+      else color = 'var(--orange)';
+    }
+    return `
+      <div class="week-day ${isToday ? 'today' : ''}">
+        <div class="week-day-label">${dayNames[i]}</div>
+        <div class="week-day-bar">
+          <div class="week-day-fill" style="height:${pct}%;background:${color}"></div>
+        </div>
+        <div class="week-day-cal">${totals.cal > 0 ? totals.cal : '—'}</div>
+      </div>
+    `;
+  }).join('');
+
+  const left = weekBudget - weekCal;
+  const todayIdx = days.indexOf(today());
+  const daysRemaining = 7 - todayIdx;
+  const perDay = daysRemaining > 0 ? Math.round(left / daysRemaining) : 0;
+
+  document.getElementById('week-budget-left').textContent = left.toLocaleString();
+  document.getElementById('week-budget-left').style.color = left >= 0 ? 'var(--text)' : 'var(--red)';
+  document.getElementById('week-budget-perday').textContent = `≈ ${perDay} / день на ${daysRemaining} ${daysRemaining === 1 ? 'день' : daysRemaining < 5 ? 'дня' : 'дней'}`;
+
+  const avgProtein = daysWithData > 0 ? Math.round(weekProtein / daysWithData) : 0;
+  document.getElementById('week-stats').innerHTML = `
+    <div class="week-stat-row">
+      <span class="week-stat-label">Съедено за неделю</span>
+      <span class="week-stat-value">${weekCal.toLocaleString()} ккал</span>
+    </div>
+    <div class="week-stat-row">
+      <span class="week-stat-label">Бюджет на неделю</span>
+      <span class="week-stat-value">${weekBudget.toLocaleString()} ккал</span>
+    </div>
+    <div class="week-stat-row">
+      <span class="week-stat-label">Средний белок / день</span>
+      <span class="week-stat-value" style="color:${avgProtein >= state.settings.proteinMin ? 'var(--green)' : 'var(--orange)'}">${avgProtein}г</span>
+    </div>
+    <div class="week-stat-row">
+      <span class="week-stat-label">Дней с данными</span>
+      <span class="week-stat-value">${daysWithData} / 7</span>
+    </div>
+  `;
+}
+
+// ===== SETTINGS =====
+function openDataModal() {
+  document.getElementById('setting-cal-target').value = state.settings.calTarget;
+  document.getElementById('setting-protein-min').value = state.settings.proteinMin;
+  document.getElementById('setting-protein-max').value = state.settings.proteinMax;
+  document.getElementById('modal-data').classList.add('active');
+}
+function saveSettings() {
+  state.settings.calTarget = parseInt(document.getElementById('setting-cal-target').value) || DEFAULTS.calTarget;
+  state.settings.proteinMin = parseInt(document.getElementById('setting-protein-min').value) || DEFAULTS.proteinMin;
+  state.settings.proteinMax = parseInt(document.getElementById('setting-protein-max').value) || DEFAULTS.proteinMax;
+  saveState();
+  closeModal('modal-data');
+  renderToday();
+}
+
+// ===== MODALS =====
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
+});
+
+// ===== EXPORT/IMPORT =====
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `nutritrack-${today()}.json`; a.click();
+  URL.revokeObjectURL(url);
+}
+function importData() {
+  const input = document.createElement('input');
+  input.type = 'file'; input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const data = JSON.parse(ev.target.result);
+        if (data.settings && data.log) {
+          state = data;
+          saveState();
+          renderToday();
+          renderProductSelect();
+          alert('Данные импортированы!');
+        }
+      } catch { alert('Ошибка чтения файла'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+// ===== INIT =====
+renderProductSelect();
+renderToday();
+
+// Register SW
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js');
+}
+</script>
+</body>
+</html>
