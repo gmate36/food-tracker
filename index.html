@@ -38,9 +38,11 @@ body {
   font-family: 'Outfit', sans-serif;
   background: var(--bg);
   color: var(--text);
-  min-height: 100dvh;
-  overflow-x: hidden;
+  height: 100dvh;
+  overflow: hidden;
   -webkit-font-smoothing: antialiased;
+  position: fixed;
+  width: 100%;
 }
 
 /* ===== TABS ===== */
@@ -49,7 +51,7 @@ body {
   display: flex;
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
-  padding: 6px 0 max(var(--safe-bottom), 12px);
+  padding: 6px 0 calc(max(var(--safe-bottom), 4px));
   z-index: 100;
 }
 .tab-bar button {
@@ -63,7 +65,13 @@ body {
 .tab-bar button svg { width: 20px; height: 20px; }
 
 .tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content.active {
+  display: block;
+  position: fixed; top: 0; left: 0; right: 0;
+  bottom: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
 
 /* ===== HEADER ===== */
 .header {
@@ -180,7 +188,7 @@ body {
 /* ===== INPUT PANEL ===== */
 .input-panel {
   position: fixed; left: 0; right: 0;
-  bottom: calc(44px + max(var(--safe-bottom), 12px));
+  bottom: calc(40px + max(var(--safe-bottom), 4px));
   background: var(--bg2);
   border-top: 1px solid var(--bg3);
   padding: 10px 16px 10px;
