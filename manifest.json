@@ -2,7 +2,7 @@
   "name": "NutriTrack",
   "short_name": "NutriTrack",
   "description": "Трекер питания — белок и калории",
-  "start_url": "/",
+  "start_url": ".",
   "display": "standalone",
   "background_color": "#0a0a0f",
   "theme_color": "#0a0a0f",
