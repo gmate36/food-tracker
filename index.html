@@ -135,22 +135,6 @@ html, body {
 .bar-cal-high { background: linear-gradient(90deg, #ea580c, #f97316); }
 .bar-cal-over { background: linear-gradient(90deg, #dc2626, #ef4444); }
 
-/* ===== NEXT SCHEDULE HINT ===== */
-.next-hint {
-  margin: 0 20px 12px; padding: 10px 14px;
-  background: var(--bg3); border-radius: var(--radius);
-  font-size: 13px; color: var(--text2);
-  display: flex; align-items: center; gap: 8px;
-}
-.next-hint-time {
-  font-family: 'JetBrains Mono', monospace;
-  color: var(--accent); font-weight: 600; font-size: 12px;
-  white-space: nowrap;
-}
-.next-hint-name { flex: 1; }
-.next-hint-stats { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); white-space: nowrap; }
-.next-hint.hidden { display: none; }
-
 /* ===== FOOD LOG ===== */
 .food-log { padding: 0 20px; padding-bottom: 220px; }
 .food-log-title { font-size: 13px; color: var(--text3); margin-bottom: 8px; font-weight: 500; text-transform: uppercase; letter-spacing: .5px; }
@@ -244,109 +228,166 @@ html, body {
 .add-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
 .add-btn:active { opacity: .7; }
 
-/* ===== SCHEDULE TAB ===== */
-.schedule-wrap { padding: 0 20px 220px; }
-.schedule-summary {
+/* ===== STATS TAB ===== */
+.stats-wrap { padding: 0 20px 140px; }
+.stats-card {
   background: var(--bg3); border-radius: var(--radius);
-  padding: 14px; margin-bottom: 16px;
+  padding: 16px; margin-bottom: 12px;
 }
-.schedule-summary-row {
-  display: flex; justify-content: space-between;
-  font-size: 13px; margin-bottom: 4px;
+.stats-card-title {
+  font-size: 11px; color: var(--text3); font-weight: 600;
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 12px;
 }
-.schedule-summary-row:last-child { margin-bottom: 0; }
-.schedule-summary-label { color: var(--text2); }
-.schedule-summary-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
-.schedule-summary-value.green { color: var(--green); }
-.schedule-summary-value.gold { color: var(--gold); }
+.stats-inputs { display: flex; flex-direction: column; gap: 10px; }
+.stats-input-field {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+}
+.stats-input-field label { font-size: 13px; color: var(--text2); flex: 1; }
+.stats-input-wrap {
+  display: flex; align-items: center; gap: 6px;
+  background: var(--bg4); border-radius: 10px; padding: 0 10px;
+  width: 150px; height: 38px;
+}
+.stats-input-wrap input {
+  flex: 1; background: none; border: none; outline: none;
+  color: var(--text); font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; text-align: right; width: 100%;
+  -moz-appearance: textfield;
+}
+.stats-input-wrap input::-webkit-outer-spin-button,
+.stats-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.stats-input-wrap input[type="date"] {
+  font-size: 12px; text-align: left;
+  color-scheme: dark;
+}
+.stats-input-wrap span.unit { font-size: 11px; color: var(--text3); }
 
-.schedule-item {
+.stats-empty-hint {
+  background: var(--bg3); border: 1px dashed var(--bg4);
+  border-radius: var(--radius); padding: 16px;
+  text-align: center; font-size: 13px; color: var(--text3);
+  margin-bottom: 12px;
+}
+
+.stats-progress-pct {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 40px; font-weight: 700; text-align: center;
+  background: linear-gradient(135deg, var(--accent), var(--blue));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  margin-bottom: 2px; line-height: 1.1;
+}
+.stats-progress-detail {
+  text-align: center; font-size: 12px; color: var(--text2); margin-bottom: 14px;
+}
+.stats-bar-track {
+  height: 10px; background: var(--bg4); border-radius: 6px;
+  overflow: hidden; margin-bottom: 10px;
+}
+.stats-bar-fill {
+  height: 100%; border-radius: 6px;
+  background: linear-gradient(90deg, var(--accent2), var(--blue));
+  transition: width .4s ease;
+}
+.stats-progress-weights {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text3);
+}
+.stats-streak {
+  margin-top: 14px; padding-top: 12px;
+  border-top: 1px solid var(--bg4);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.stats-streak-label { font-size: 13px; color: var(--text2); }
+.stats-streak-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px; font-weight: 700;
+}
+.stats-streak-value .num { font-size: 22px; color: var(--accent); margin-right: 4px; }
+.stats-streak-value.zero .num { color: var(--text3); }
+
+.stats-today-rows { display: flex; flex-direction: column; gap: 10px; }
+.stats-today-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 14px; }
+.stats-today-row .label { color: var(--text2); }
+.stats-today-row .value {
+  font-family: 'JetBrains Mono', monospace; font-weight: 600;
+}
+.stats-today-row .value.big { font-size: 20px; }
+.stats-today-row .value.pos { color: var(--green); }
+.stats-today-row .value.neg { color: var(--orange); }
+
+.stats-days { display: flex; flex-direction: column; }
+.stats-day-group { border-bottom: 1px solid var(--bg4); }
+.stats-day-group:last-child { border-bottom: none; }
+.stats-day-row {
   display: flex; align-items: center; gap: 10px;
-  padding: 12px 0; border-bottom: 1px solid var(--bg3);
+  padding: 10px 0; cursor: pointer;
+  user-select: none; -webkit-user-select: none;
 }
-.schedule-item:last-child { border-bottom: none; }
-.schedule-check {
-  width: 32px; height: 32px; flex-shrink: 0;
-  background: var(--bg3); border: 2px solid var(--bg4);
-  border-radius: 10px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s; color: transparent;
+.stats-day-row.no-data { cursor: default; }
+.stats-day-row:active:not(.no-data) { opacity: .7; }
+.stats-day-date {
+  font-family: 'JetBrains Mono', monospace; font-size: 11px;
+  color: var(--text3); width: 62px; flex-shrink: 0;
 }
-.schedule-check.done {
-  background: var(--accent); border-color: var(--accent);
-  color: var(--bg);
+.stats-day-bar-track {
+  flex: 1; height: 8px; background: var(--bg4); border-radius: 4px;
+  overflow: hidden; position: relative;
 }
-.schedule-check svg { width: 16px; height: 16px; }
-.schedule-item-time {
-  font-family: 'JetBrains Mono', monospace; font-size: 13px;
-  color: var(--text3); width: 45px; flex-shrink: 0;
+.stats-day-bar-center {
+  position: absolute; left: 50%; top: 0; bottom: 0; width: 1px;
+  background: var(--text3); opacity: .4;
 }
-.schedule-item-info { flex: 1; }
-.schedule-item-name { font-size: 14px; font-weight: 500; }
-.schedule-item-stats { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); margin-top: 2px; }
-.schedule-item-delete {
-  background: none; border: none; color: var(--text3); cursor: pointer;
-  padding: 4px; border-radius: 6px; opacity: 0; transition: opacity .2s;
+.stats-day-bar-fill {
+  position: absolute; top: 0; bottom: 0; border-radius: 2px;
 }
-.schedule-item:hover .schedule-item-delete,
-.schedule-item:active .schedule-item-delete { opacity: 1; }
-.schedule-item-delete svg { width: 14px; height: 14px; }
+.stats-day-pct {
+  font-family: 'JetBrains Mono', monospace; font-size: 12px;
+  font-weight: 600; width: 56px; flex-shrink: 0; text-align: right;
+}
+.stats-day-caret {
+  width: 12px; height: 12px; flex-shrink: 0; color: var(--text3);
+  transition: transform .2s;
+}
+.stats-day-group.expanded .stats-day-caret { transform: rotate(180deg); }
 
-.schedule-add-btn {
-  width: 100%; height: 44px; margin-top: 12px;
-  background: var(--bg3); border: 2px dashed var(--bg4);
-  color: var(--text3); font-family: 'Outfit', sans-serif; font-size: 14px;
-  border-radius: var(--radius); cursor: pointer;
-  transition: all .2s;
+.stats-day-log {
+  display: none;
+  padding: 4px 0 12px 8px;
 }
-.schedule-add-btn:active { background: var(--bg4); border-color: var(--text3); }
-
-/* ===== WEEK TAB ===== */
-.week-wrap { padding: 0 20px 140px; }
-.week-budget {
-  background: var(--bg3); border-radius: var(--radius);
-  padding: 16px; margin-bottom: 16px; text-align: center;
+.stats-day-group.expanded .stats-day-log { display: block; }
+.stats-day-log-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0; font-size: 13px;
 }
-.week-budget-left {
+.stats-day-log-item .time {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 28px; font-weight: 700;
+  font-size: 10px; color: var(--text3); width: 40px; flex-shrink: 0;
 }
-.week-budget-label { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.week-budget-perday {
+.stats-day-log-item .name {
+  flex: 1; color: var(--text2);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.stats-day-log-item .nums {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px; color: var(--accent); margin-top: 8px;
+  font-size: 11px; color: var(--text3); flex-shrink: 0;
 }
-
-.week-days { display: flex; gap: 6px; margin-bottom: 16px; }
-.week-day {
-  flex: 1; text-align: center; padding: 8px 0;
-  background: var(--bg3); border-radius: 10px;
-}
-.week-day-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 600; }
-.week-day-bar {
-  width: 18px; height: 40px; margin: 0 auto;
-  background: var(--bg4); border-radius: 6px; overflow: hidden;
-  position: relative; display: flex; align-items: flex-end;
-}
-.week-day-fill {
-  width: 100%; border-radius: 6px;
-  transition: height .3s;
-}
-.week-day-cal {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 8px; color: var(--text3); margin-top: 4px;
-}
-.week-day.today { background: var(--bg4); }
-.week-day.today .week-day-label { color: var(--accent); }
-
-.week-stats { background: var(--bg3); border-radius: var(--radius); padding: 14px; }
-.week-stat-row {
+.stats-day-log-total {
   display: flex; justify-content: space-between;
-  font-size: 13px; margin-bottom: 6px;
+  margin-top: 6px; padding-top: 8px;
+  border-top: 1px dashed var(--bg4);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; color: var(--text3);
 }
-.week-stat-row:last-child { margin-bottom: 0; }
-.week-stat-label { color: var(--text2); }
-.week-stat-value { font-family: 'JetBrains Mono', monospace; font-weight: 600; }
+.stats-day-log-total .def { font-weight: 600; }
+.stats-day-log-total .def.pos { color: var(--green); }
+.stats-day-log-total .def.neg { color: var(--orange); }
+.stats-reset-btn {
+  width: 100%; height: 38px; margin-top: 10px;
+  background: transparent; border: 1px solid var(--bg4);
+  color: var(--text3); font-family: 'Outfit', sans-serif;
+  font-size: 12px; border-radius: 10px; cursor: pointer;
+}
+.stats-reset-btn:active { background: var(--bg4); }
 
 /* ===== MODAL ===== */
 .modal-overlay {
@@ -464,12 +505,6 @@ html, body {
     </div>
   </div>
 
-  <div class="next-hint hidden" id="next-hint">
-    <span class="next-hint-time" id="next-hint-time"></span>
-    <span class="next-hint-name" id="next-hint-name"></span>
-    <span class="next-hint-stats" id="next-hint-stats"></span>
-  </div>
-
   <div class="food-log" id="food-log">
     <div class="food-log-title">Сегодня</div>
     <div id="food-list"></div>
@@ -497,31 +532,70 @@ html, body {
   </div>
 </div>
 
-<!-- ===== SCHEDULE TAB ===== -->
-<div id="tab-schedule" class="tab-content">
+<!-- ===== STATS TAB ===== -->
+<div id="tab-stats" class="tab-content">
   <div class="header">
-    <h1>Расписание</h1>
+    <h1>Статистика</h1>
   </div>
-  <div class="schedule-wrap">
-    <div class="schedule-summary" id="schedule-summary"></div>
-    <div id="schedule-list"></div>
-    <button class="schedule-add-btn" onclick="openScheduleModal()">+ Добавить в расписание</button>
-  </div>
-</div>
-
-<!-- ===== WEEK TAB ===== -->
-<div id="tab-week" class="tab-content">
-  <div class="header">
-    <h1>Неделя</h1>
-  </div>
-  <div class="week-wrap">
-    <div class="week-budget">
-      <div class="week-budget-left" id="week-budget-left">17500</div>
-      <div class="week-budget-label">ккал осталось на неделю</div>
-      <div class="week-budget-perday" id="week-budget-perday">≈ 2500 / день</div>
+  <div class="stats-wrap">
+    <div class="stats-card">
+      <div class="stats-card-title">Цель</div>
+      <div class="stats-inputs">
+        <div class="stats-input-field">
+          <label>Стартовый вес</label>
+          <div class="stats-input-wrap">
+            <input type="number" id="stats-start-weight" inputmode="decimal" step="0.1" placeholder="80.0" onchange="saveStatsGoal()">
+            <span class="unit">кг</span>
+          </div>
+        </div>
+        <div class="stats-input-field">
+          <label>Старт отсчёта</label>
+          <div class="stats-input-wrap">
+            <input type="date" id="stats-start-date" onchange="saveStatsGoal()">
+          </div>
+        </div>
+        <div class="stats-input-field">
+          <label>Целевой вес</label>
+          <div class="stats-input-wrap">
+            <input type="number" id="stats-goal-weight" inputmode="decimal" step="0.1" placeholder="78.0" onchange="saveStatsGoal()">
+            <span class="unit">кг</span>
+          </div>
+        </div>
+        <div class="stats-input-field">
+          <label>Трата в день</label>
+          <div class="stats-input-wrap">
+            <input type="number" id="stats-burn" inputmode="numeric" placeholder="2987" onchange="saveStatsGoal()">
+            <span class="unit">ккал</span>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="week-days" id="week-days"></div>
-    <div class="week-stats" id="week-stats"></div>
+
+    <div class="stats-empty-hint" id="stats-empty-hint" style="display:none">
+      Заполни старт, цель и среднюю трату ккал —<br>и увидишь прогресс по дням.
+    </div>
+
+    <div class="stats-card" id="stats-summary-card" style="display:none">
+      <div class="stats-card-title">Общий прогресс</div>
+      <div class="stats-progress-pct" id="stats-progress-pct">0%</div>
+      <div class="stats-progress-detail" id="stats-progress-detail"></div>
+      <div class="stats-bar-track"><div class="stats-bar-fill" id="stats-progress-bar" style="width:0%"></div></div>
+      <div class="stats-progress-weights" id="stats-progress-weights"></div>
+      <div class="stats-streak" id="stats-streak">
+        <span class="stats-streak-label">Серия в дефиците</span>
+        <span class="stats-streak-value" id="stats-streak-value"><span class="num">0</span>дней</span>
+      </div>
+    </div>
+
+    <div class="stats-card" id="stats-today-card" style="display:none">
+      <div class="stats-card-title">Сегодня</div>
+      <div class="stats-today-rows" id="stats-today-rows"></div>
+    </div>
+
+    <div class="stats-card" id="stats-history-card" style="display:none">
+      <div class="stats-card-title">По дням</div>
+      <div class="stats-days" id="stats-days"></div>
+    </div>
   </div>
 </div>
 
@@ -531,13 +605,9 @@ html, body {
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
     Сегодня
   </button>
-  <button onclick="switchTab('schedule', this)">
-    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-    Расписание
-  </button>
-  <button onclick="switchTab('week', this)">
+  <button onclick="switchTab('stats', this)">
     <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 8v8M12 11v5M8 14v2M4 4h16v16H4z"/></svg>
-    Неделя
+    Статистика
   </button>
 </div>
 
@@ -559,19 +629,6 @@ html, body {
   </div>
 </div>
 
-<div class="modal-overlay" id="modal-schedule">
-  <div class="modal">
-    <div class="modal-title">Новый пункт <button class="modal-close" onclick="closeModal('modal-schedule')">✕</button></div>
-    <div class="modal-field"><label>Название</label><input id="sched-name" placeholder="Протеин"></div>
-    <div class="modal-field"><label>Время</label><input type="time" id="sched-time" value="14:00"></div>
-    <div style="display:flex;gap:8px">
-      <div class="modal-field" style="flex:1"><label>Белок (г)</label><input type="number" id="sched-protein" inputmode="numeric"></div>
-      <div class="modal-field" style="flex:1"><label>Калории</label><input type="number" id="sched-cal" inputmode="numeric"></div>
-    </div>
-    <button class="modal-submit" onclick="addScheduleItem()">Добавить</button>
-  </div>
-</div>
-
 <div class="modal-overlay" id="modal-data">
   <div class="modal">
     <div class="modal-title">Настройки <button class="modal-close" onclick="closeModal('modal-data')">✕</button></div>
@@ -586,18 +643,22 @@ html, body {
 
 <script>
 // ===== STATE =====
-const DEFAULTS = { calTarget: 2500, proteinMin: 130, proteinMax: 165 };
+const DEFAULTS = {
+  calTarget: 2500, proteinMin: 130, proteinMax: 165,
+  startWeight: 0, goalWeight: 0, avgBurn: 0, startDate: ''
+};
+const KCAL_PER_KG_FAT = 7700;
 let state = loadState();
 
 function loadState() {
   try {
     const s = JSON.parse(localStorage.getItem('nutritrack') || '{}');
     return {
-      settings: s.settings || { ...DEFAULTS },
+      settings: { ...DEFAULTS, ...(s.settings || {}) },
       products: s.products || [],
       schedule: s.schedule || [],
       log: s.log || {},        // { "2026-02-22": [ {time, name, protein, cal, fromSchedule} ] }
-      scheduleDone: s.scheduleDone || {} // { "2026-02-22": ["id1","id2"] }
+      scheduleDone: s.scheduleDone || {} // kept for backwards-compat of old data
     };
   } catch { return { settings: {...DEFAULTS}, products: [], schedule: [], log: {}, scheduleDone: {} }; }
 }
@@ -606,22 +667,6 @@ function today() { return new Date().toISOString().slice(0, 10); }
 function todayLog() { return state.log[today()] || []; }
 function nowTime() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
 
-// ===== WEEK HELPERS =====
-function getWeekStart(date) {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  return new Date(d.setDate(diff)).toISOString().slice(0, 10);
-}
-function getWeekDays(startDate) {
-  const days = [];
-  const d = new Date(startDate);
-  for (let i = 0; i < 7; i++) {
-    days.push(new Date(d).toISOString().slice(0, 10));
-    d.setDate(d.getDate() + 1);
-  }
-  return days;
-}
 function dayTotals(dateStr) {
   const entries = state.log[dateStr] || [];
   let protein = 0, cal = 0;
@@ -635,10 +680,8 @@ function switchTab(name, btn) {
   document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   btn.classList.add('active');
-  // Show input panel only on today tab
   document.getElementById('input-panel').style.display = name === 'today' ? '' : 'none';
-  if (name === 'week') renderWeek();
-  if (name === 'schedule') renderSchedule();
+  if (name === 'stats') renderStats();
 }
 
 // ===== RENDER TODAY =====
@@ -700,25 +743,6 @@ function renderToday() {
       </div>
     `).join('');
   }
-
-  // Next schedule hint
-  renderNextHint();
-}
-
-function renderNextHint() {
-  const hint = document.getElementById('next-hint');
-  const doneIds = state.scheduleDone[today()] || [];
-  const now = nowTime();
-  const next = state.schedule
-    .filter(s => !doneIds.includes(s.id))
-    .sort((a, b) => a.time.localeCompare(b.time))
-    .find(s => s.time >= now) || state.schedule.filter(s => !doneIds.includes(s.id)).sort((a, b) => a.time.localeCompare(b.time))[0];
-
-  if (!next) { hint.classList.add('hidden'); return; }
-  hint.classList.remove('hidden');
-  document.getElementById('next-hint-time').textContent = next.time;
-  document.getElementById('next-hint-name').textContent = next.name;
-  document.getElementById('next-hint-stats').textContent = `${next.protein}г / ${next.cal}`;
 }
 
 // ===== ADD FOOD =====
@@ -806,167 +830,197 @@ function deleteProduct(id) {
   renderProductSelect();
 }
 
-// ===== SCHEDULE =====
-function renderSchedule() {
-  const list = document.getElementById('schedule-list');
-  const sorted = [...state.schedule].sort((a, b) => a.time.localeCompare(b.time));
-  const doneIds = state.scheduleDone[today()] || [];
+// ===== STATS =====
+const expandedDays = new Set();
 
-  let totalProtein = 0, totalCal = 0;
-  sorted.forEach(s => { totalProtein += s.protein; totalCal += s.cal; });
+function addDaysISO(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
+}
+function daysBetween(a, b) {
+  const da = new Date(a + 'T00:00:00');
+  const db = new Date(b + 'T00:00:00');
+  return Math.round((db - da) / 86400000);
+}
+function formatShortDate(dateStr) {
+  const dayNames = ['вс','пн','вт','ср','чт','пт','сб'];
+  const d = new Date(dateStr + 'T00:00:00');
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  return `${dayNames[d.getDay()]} ${dd}.${mm}`;
+}
+function pluralDays(n) {
+  const lastTwo = n % 100;
+  if (lastTwo >= 11 && lastTwo <= 14) return 'дней';
+  const last = n % 10;
+  if (last === 1) return 'день';
+  if (last >= 2 && last <= 4) return 'дня';
+  return 'дней';
+}
+function toggleDayLog(date) {
+  if (expandedDays.has(date)) expandedDays.delete(date);
+  else expandedDays.add(date);
+  renderStats();
+}
 
-  const { calTarget, proteinMin } = state.settings;
-  const freeProtein = Math.max(0, proteinMin - totalProtein);
-  const freeCal = Math.max(0, calTarget - totalCal);
+function saveStatsGoal() {
+  const prev = state.settings;
+  const sw = parseFloat(document.getElementById('stats-start-weight').value);
+  const gw = parseFloat(document.getElementById('stats-goal-weight').value);
+  const br = parseInt(document.getElementById('stats-burn').value);
+  const sd = document.getElementById('stats-start-date').value;
 
-  document.getElementById('schedule-summary').innerHTML = `
-    <div class="schedule-summary-row">
-      <span class="schedule-summary-label">План закрывает</span>
-      <span class="schedule-summary-value gold">${totalProtein}г / ${totalCal} ккал</span>
-    </div>
-    <div class="schedule-summary-row">
-      <span class="schedule-summary-label">Свободно</span>
-      <span class="schedule-summary-value green">+${freeCal} ккал / нужно ${freeProtein}г белка</span>
-    </div>
-  `;
+  if (!isNaN(sw)) prev.startWeight = sw;
+  else if (document.getElementById('stats-start-weight').value === '') prev.startWeight = 0;
 
-  if (sorted.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div>Добавь ежедневные приёмы пищи</div>';
+  if (!isNaN(gw)) prev.goalWeight = gw;
+  else if (document.getElementById('stats-goal-weight').value === '') prev.goalWeight = 0;
+
+  if (!isNaN(br)) prev.avgBurn = br;
+  else if (document.getElementById('stats-burn').value === '') prev.avgBurn = 0;
+
+  if (sd) prev.startDate = sd;
+  else if (document.getElementById('stats-start-date').value === '') prev.startDate = '';
+
+  // Auto-set start date when start weight is entered for the first time
+  if (prev.startWeight > 0 && !prev.startDate) prev.startDate = today();
+
+  saveState();
+  renderStats();
+}
+
+function renderStats() {
+  const { startWeight, goalWeight, avgBurn, startDate } = state.settings;
+
+  document.getElementById('stats-start-weight').value = startWeight > 0 ? startWeight : '';
+  document.getElementById('stats-goal-weight').value = goalWeight > 0 ? goalWeight : '';
+  document.getElementById('stats-burn').value = avgBurn > 0 ? avgBurn : '';
+  document.getElementById('stats-start-date').value = startDate || '';
+
+  const configured = startWeight > 0 && goalWeight > 0 && avgBurn > 0 && startDate;
+  const ids = ['stats-summary-card','stats-today-card','stats-history-card'];
+  ids.forEach(id => document.getElementById(id).style.display = configured ? '' : 'none');
+  document.getElementById('stats-empty-hint').style.display = configured ? 'none' : '';
+  if (!configured) return;
+
+  const todayStr = today();
+  const totalToLoseKg = startWeight - goalWeight;
+  const direction = totalToLoseKg >= 0 ? 1 : -1;
+  const totalAbsG = Math.abs(totalToLoseKg) * 1000 || 1;
+
+  const spanDays = Math.max(0, daysBetween(startDate, todayStr));
+  const days = [];
+  for (let i = 0; i <= spanDays; i++) {
+    const dateStr = addDaysISO(startDate, i);
+    const totals = dayTotals(dateStr);
+    const hasData = totals.cal > 0;
+    const deficit = hasData ? (avgBurn - totals.cal) : 0;
+    const gramsLost = deficit * 1000 / KCAL_PER_KG_FAT;
+    days.push({ date: dateStr, hasData, cal: totals.cal, deficit, gramsLost });
+  }
+
+  const totalLostG = days.reduce((a, d) => a + d.gramsLost, 0);
+  const calcWeight = startWeight - totalLostG / 1000;
+  const cumulativePct = Math.max(0, Math.min(100, (totalLostG * direction) / totalAbsG * 100));
+
+  document.getElementById('stats-progress-pct').textContent = cumulativePct.toFixed(1) + '%';
+  document.getElementById('stats-progress-bar').style.width = cumulativePct + '%';
+
+  const kgChange = totalLostG / 1000;
+  const kgSign = kgChange >= 0 ? '−' : '+';
+  const daysLabel = days.length === 1 ? 'день' : (days.length < 5 ? 'дня' : 'дней');
+  document.getElementById('stats-progress-detail').textContent =
+    `${kgSign}${Math.abs(kgChange).toFixed(2)} кг за ${days.length} ${daysLabel}`;
+  document.getElementById('stats-progress-weights').innerHTML =
+    `<span>${startWeight.toFixed(1)} → ${calcWeight.toFixed(1)} кг</span><span>цель ${goalWeight.toFixed(1)} кг</span>`;
+
+  // Streak — consecutive days with deficit, walking back from today (or yesterday if today has no data)
+  let streak = 0;
+  for (let i = days.length - 1; i >= 0; i--) {
+    const d = days[i];
+    if (d.date === todayStr && !d.hasData) continue;
+    if (d.hasData && d.deficit > 0) streak++;
+    else break;
+  }
+  const streakEl = document.getElementById('stats-streak-value');
+  streakEl.innerHTML = `<span class="num">${streak}</span>${pluralDays(streak)}`;
+  streakEl.classList.toggle('zero', streak === 0);
+
+  // Today
+  const todayData = days.find(d => d.date === todayStr);
+  const todayRows = document.getElementById('stats-today-rows');
+  if (todayData && todayData.hasData) {
+    const deficitClass = todayData.deficit > 0 ? 'pos' : 'neg';
+    const dayPct = todayData.gramsLost * direction / totalAbsG * 100;
+    const pctClass = dayPct >= 0 ? 'pos' : 'neg';
+    const dSign = todayData.deficit >= 0 ? '−' : '+';
+    const gSign = todayData.gramsLost >= 0 ? '−' : '+';
+    const pSign = dayPct >= 0 ? '+' : '−';
+    todayRows.innerHTML = `
+      <div class="stats-today-row"><span class="label">Съедено</span><span class="value">${todayData.cal} ккал</span></div>
+      <div class="stats-today-row"><span class="label">Дефицит</span><span class="value ${deficitClass}">${dSign}${Math.abs(todayData.deficit)} ккал</span></div>
+      <div class="stats-today-row"><span class="label">≈ жира</span><span class="value ${deficitClass}">${gSign}${Math.abs(Math.round(todayData.gramsLost))} г</span></div>
+      <div class="stats-today-row"><span class="label">К цели</span><span class="value big ${pctClass}">${pSign}${Math.abs(dayPct).toFixed(1)}%</span></div>
+    `;
   } else {
-    list.innerHTML = sorted.map(s => {
-      const done = doneIds.includes(s.id);
-      return `
-        <div class="schedule-item">
-          <button class="schedule-check ${done ? 'done' : ''}" onclick="toggleScheduleDone('${s.id}')">
-            <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-          </button>
-          <span class="schedule-item-time">${s.time}</span>
-          <div class="schedule-item-info">
-            <div class="schedule-item-name">${s.name}</div>
-            <div class="schedule-item-stats">${s.protein}г белка · ${s.cal} ккал</div>
+    todayRows.innerHTML = `<div class="stats-today-row"><span class="label">Сегодня ещё нет записей</span><span class="value">—</span></div>`;
+  }
+
+  // History — all days except today, newest first
+  const historyEl = document.getElementById('stats-days');
+  const history = days.filter(d => d.date !== todayStr).reverse();
+  if (history.length === 0) {
+    historyEl.innerHTML = `<div class="stats-today-row" style="padding:6px 0"><span class="label">История появится завтра</span><span class="value">—</span></div>`;
+  } else {
+    const maxBarPct = 10;
+    historyEl.innerHTML = history.map(d => {
+      if (!d.hasData) {
+        return `<div class="stats-day-group">
+          <div class="stats-day-row no-data">
+            <span class="stats-day-date">${formatShortDate(d.date)}</span>
+            <div class="stats-day-bar-track"><div class="stats-day-bar-center"></div></div>
+            <span class="stats-day-pct" style="color:var(--text3)">—</span>
           </div>
-          <button class="schedule-item-delete" onclick="deleteScheduleItem('${s.id}')">
-            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"/></svg>
-          </button>
+        </div>`;
+      }
+      const dayPct = d.gramsLost * direction / totalAbsG * 100;
+      const barW = Math.min(50, Math.abs(dayPct) / maxBarPct * 50);
+      const left = dayPct >= 0 ? 50 : 50 - barW;
+      const color = dayPct >= 0 ? 'var(--green)' : 'var(--orange)';
+      const pSign = dayPct >= 0 ? '+' : '−';
+      const expanded = expandedDays.has(d.date);
+      const entries = state.log[d.date] || [];
+      const totals = dayTotals(d.date);
+      const defClass = d.deficit > 0 ? 'pos' : 'neg';
+      const defSign = d.deficit >= 0 ? '−' : '+';
+      const logItems = entries.map(e => `
+        <div class="stats-day-log-item">
+          <span class="time">${e.time || ''}</span>
+          <span class="name">${e.name || 'Без названия'}</span>
+          <span class="nums">${e.protein||0}г · ${e.cal||0}</span>
         </div>
-      `;
+      `).join('');
+      return `<div class="stats-day-group ${expanded ? 'expanded' : ''}">
+        <div class="stats-day-row" onclick="toggleDayLog('${d.date}')">
+          <span class="stats-day-date">${formatShortDate(d.date)}</span>
+          <div class="stats-day-bar-track">
+            <div class="stats-day-bar-fill" style="left:${left}%;width:${barW}%;background:${color}"></div>
+            <div class="stats-day-bar-center"></div>
+          </div>
+          <span class="stats-day-pct" style="color:${color}">${pSign}${Math.abs(dayPct).toFixed(1)}%</span>
+          <svg class="stats-day-caret" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        <div class="stats-day-log">
+          ${logItems || '<div class="stats-day-log-item"><span class="name" style="color:var(--text3)">Записей нет</span></div>'}
+          <div class="stats-day-log-total">
+            <span>${totals.protein}г белка · ${totals.cal} ккал</span>
+            <span class="def ${defClass}">${defSign}${Math.abs(d.deficit)} ккал</span>
+          </div>
+        </div>
+      </div>`;
     }).join('');
   }
-}
-
-function toggleScheduleDone(id) {
-  const d = today();
-  if (!state.scheduleDone[d]) state.scheduleDone[d] = [];
-  const idx = state.scheduleDone[d].indexOf(id);
-  const item = state.schedule.find(s => s.id === id);
-  if (!item) return;
-
-  if (idx === -1) {
-    // Mark done → add to food log
-    state.scheduleDone[d].push(id);
-    if (!state.log[d]) state.log[d] = [];
-    state.log[d].push({ time: item.time, name: item.name, protein: item.protein, cal: item.cal, fromSchedule: id });
-  } else {
-    // Uncheck → remove from log
-    state.scheduleDone[d].splice(idx, 1);
-    if (state.log[d]) {
-      state.log[d] = state.log[d].filter(e => e.fromSchedule !== id);
-    }
-  }
-  saveState();
-  renderSchedule();
-  renderToday();
-}
-
-function openScheduleModal() { document.getElementById('modal-schedule').classList.add('active'); }
-function addScheduleItem() {
-  const name = document.getElementById('sched-name').value.trim();
-  const time = document.getElementById('sched-time').value;
-  const protein = parseInt(document.getElementById('sched-protein').value) || 0;
-  const cal = parseInt(document.getElementById('sched-cal').value) || 0;
-  if (!name) return;
-  state.schedule.push({ id: Date.now().toString(), name, time, protein, cal });
-  saveState();
-  closeModal('modal-schedule');
-  renderSchedule();
-  renderNextHint();
-  document.getElementById('sched-name').value = '';
-  document.getElementById('sched-protein').value = '';
-  document.getElementById('sched-cal').value = '';
-}
-function deleteScheduleItem(id) {
-  state.schedule = state.schedule.filter(s => s.id !== id);
-  saveState();
-  renderSchedule();
-  renderNextHint();
-}
-
-// ===== WEEK =====
-function renderWeek() {
-  const weekStart = getWeekStart(today());
-  const days = getWeekDays(weekStart);
-  const dayNames = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-  const { calTarget } = state.settings;
-  const weekBudget = calTarget * 7;
-
-  let weekCal = 0, weekProtein = 0, daysWithData = 0;
-
-  const daysEl = document.getElementById('week-days');
-  daysEl.innerHTML = days.map((d, i) => {
-    const totals = dayTotals(d);
-    weekCal += totals.cal;
-    weekProtein += totals.protein;
-    if (totals.cal > 0) daysWithData++;
-
-    const isToday = d === today();
-    const pct = Math.min(100, (totals.cal / (calTarget + 400)) * 100);
-    const calMin = calTarget - 300;
-    const calMax = calTarget + 200;
-    let color = 'var(--text3)';
-    if (totals.cal > 0) {
-      if (totals.cal < calMin) color = 'var(--red)';
-      else if (totals.cal <= calMax) color = 'var(--green)';
-      else color = 'var(--orange)';
-    }
-    return `
-      <div class="week-day ${isToday ? 'today' : ''}">
-        <div class="week-day-label">${dayNames[i]}</div>
-        <div class="week-day-bar">
-          <div class="week-day-fill" style="height:${pct}%;background:${color}"></div>
-        </div>
-        <div class="week-day-cal">${totals.cal > 0 ? totals.cal : '—'}</div>
-      </div>
-    `;
-  }).join('');
-
-  const left = weekBudget - weekCal;
-  const todayIdx = days.indexOf(today());
-  const daysRemaining = 7 - todayIdx;
-  const perDay = daysRemaining > 0 ? Math.round(left / daysRemaining) : 0;
-
-  document.getElementById('week-budget-left').textContent = left.toLocaleString();
-  document.getElementById('week-budget-left').style.color = left >= 0 ? 'var(--text)' : 'var(--red)';
-  document.getElementById('week-budget-perday').textContent = `≈ ${perDay} / день на ${daysRemaining} ${daysRemaining === 1 ? 'день' : daysRemaining < 5 ? 'дня' : 'дней'}`;
-
-  const avgProtein = daysWithData > 0 ? Math.round(weekProtein / daysWithData) : 0;
-  document.getElementById('week-stats').innerHTML = `
-    <div class="week-stat-row">
-      <span class="week-stat-label">Съедено за неделю</span>
-      <span class="week-stat-value">${weekCal.toLocaleString()} ккал</span>
-    </div>
-    <div class="week-stat-row">
-      <span class="week-stat-label">Бюджет на неделю</span>
-      <span class="week-stat-value">${weekBudget.toLocaleString()} ккал</span>
-    </div>
-    <div class="week-stat-row">
-      <span class="week-stat-label">Средний белок / день</span>
-      <span class="week-stat-value" style="color:${avgProtein >= state.settings.proteinMin ? 'var(--green)' : 'var(--orange)'}">${avgProtein}г</span>
-    </div>
-    <div class="week-stat-row">
-      <span class="week-stat-label">Дней с данными</span>
-      <span class="week-stat-value">${daysWithData} / 7</span>
-    </div>
-  `;
 }
 
 // ===== SETTINGS =====
@@ -1010,7 +1064,13 @@ function importData() {
       try {
         const data = JSON.parse(ev.target.result);
         if (data.settings && data.log) {
-          state = data;
+          state = {
+            settings: { ...DEFAULTS, ...(data.settings || {}) },
+            products: data.products || [],
+            schedule: data.schedule || [],
+            log: data.log || {},
+            scheduleDone: data.scheduleDone || {}
+          };
           saveState();
           renderToday();
           renderProductSelect();
@@ -1022,6 +1082,30 @@ function importData() {
   };
   input.click();
 }
+
+// ===== KEYBOARD / VIEWPORT FIX =====
+// On iOS the fixed input panel gets hidden behind the on-screen keyboard.
+// Use visualViewport to lift the panel above the keyboard.
+(function() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const panel = document.getElementById('input-panel');
+  const tabBar = document.querySelector('.tab-bar');
+  function adjust() {
+    const keyboardH = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    if (keyboardH > 80) {
+      panel.style.bottom = keyboardH + 'px';
+      panel.style.paddingBottom = '10px';
+      tabBar.style.visibility = 'hidden';
+    } else {
+      panel.style.bottom = '';
+      panel.style.paddingBottom = '';
+      tabBar.style.visibility = '';
+    }
+  }
+  vv.addEventListener('resize', adjust);
+  vv.addEventListener('scroll', adjust);
+})();
 
 // ===== INIT =====
 renderProductSelect();

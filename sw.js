@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nutritrack-v7';
+const CACHE_NAME = 'nutritrack-v9';
 const ASSETS = ['./index.html'];
 
 self.addEventListener('install', e => {
