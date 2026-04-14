@@ -544,7 +544,7 @@ html, body {
         <div class="stats-input-field">
           <label>Стартовый вес</label>
           <div class="stats-input-wrap">
-            <input type="number" id="stats-start-weight" inputmode="decimal" step="0.1" placeholder="80.0" onchange="saveStatsGoal()">
+            <input type="text" id="stats-start-weight" inputmode="decimal" pattern="[0-9.,]*" placeholder="80.0" onchange="saveStatsGoal()">
             <span class="unit">кг</span>
           </div>
         </div>
@@ -557,7 +557,7 @@ html, body {
         <div class="stats-input-field">
           <label>Целевой вес</label>
           <div class="stats-input-wrap">
-            <input type="number" id="stats-goal-weight" inputmode="decimal" step="0.1" placeholder="78.0" onchange="saveStatsGoal()">
+            <input type="text" id="stats-goal-weight" inputmode="decimal" pattern="[0-9.,]*" placeholder="78.0" onchange="saveStatsGoal()">
             <span class="unit">кг</span>
           </div>
         </div>
@@ -864,24 +864,35 @@ function toggleDayLog(date) {
   renderStats();
 }
 
+function parseDecimal(str) {
+  if (str == null) return NaN;
+  const cleaned = String(str).trim().replace(',', '.').replace(/[^\d.]/g, '');
+  if (cleaned === '') return NaN;
+  return parseFloat(cleaned);
+}
+
 function saveStatsGoal() {
   const prev = state.settings;
-  const sw = parseFloat(document.getElementById('stats-start-weight').value);
-  const gw = parseFloat(document.getElementById('stats-goal-weight').value);
-  const br = parseInt(document.getElementById('stats-burn').value);
+  const swRaw = document.getElementById('stats-start-weight').value;
+  const gwRaw = document.getElementById('stats-goal-weight').value;
+  const brRaw = document.getElementById('stats-burn').value;
   const sd = document.getElementById('stats-start-date').value;
 
+  const sw = parseDecimal(swRaw);
+  const gw = parseDecimal(gwRaw);
+  const br = parseInt(brRaw);
+
   if (!isNaN(sw)) prev.startWeight = sw;
-  else if (document.getElementById('stats-start-weight').value === '') prev.startWeight = 0;
+  else if (swRaw === '') prev.startWeight = 0;
 
   if (!isNaN(gw)) prev.goalWeight = gw;
-  else if (document.getElementById('stats-goal-weight').value === '') prev.goalWeight = 0;
+  else if (gwRaw === '') prev.goalWeight = 0;
 
   if (!isNaN(br)) prev.avgBurn = br;
-  else if (document.getElementById('stats-burn').value === '') prev.avgBurn = 0;
+  else if (brRaw === '') prev.avgBurn = 0;
 
   if (sd) prev.startDate = sd;
-  else if (document.getElementById('stats-start-date').value === '') prev.startDate = '';
+  else if (sd === '') prev.startDate = '';
 
   // Auto-set start date when start weight is entered for the first time
   if (prev.startWeight > 0 && !prev.startDate) prev.startDate = today();
